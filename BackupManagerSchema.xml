@@ -1,0 +1,50 @@
+<configSchema>
+  <sectionSchema name="system.webServer/wdeploy/backup" allowUnrecognizedAttributes="true">
+    <attribute name="turnedOn" type="bool" defaultValue="false" />
+    <attribute name="enabled" type="bool" defaultValue="false" />
+
+    <!--     
+      The backupPath supports variables which allow you have more control over where backups are placed.  
+      These are the supported variables:
+      
+        {siteName} - Will be replaced by the sites name you're creating the backup for
+        {sitePathParent} - Will be replaced by the physical path of the sites parent.
+      
+      Here's some examples of how it could be used for a site that lives under "c:\sites\mysite\wwwroot":
+      
+        "%SystemDrive%\{siteName}\snapshots ==> "c:\mySite\snapshots"
+        {sitePathParent}\snapshots ==> "c:\sites\mysite\snapshots"
+        {sitePathParent}\snapshots\{siteName} ==> "c:\sites\mysite\snapshots\mysite"
+      
+      CAUTION: It is recommended that you do NOT place backups under the site content folder or 
+      web deploy will overwrite a sites backups during a sync.
+    -->
+    <attribute name="backupPath" type="string" defaultValue="{sitePathParent}\{siteName}_snapshots" validationType="nonEmptyString"/>
+    <attribute name="numberOfBackups" type="uint" defaultValue="4" />
+
+    <!-- Client can override -->
+    <attribute name="continueSyncOnBackupFailure" type="bool" defaultValue="true" />
+
+    <!-- 
+      List Excluded Providers here that will not be backed up.  Here's a sample xml:
+      <excludedProviders>
+        <provider name="dbfullsql" />
+        <provider name="dbmysql" />
+      </excludedProviders>
+    -->
+    <element name="excludedProviders" allowUnrecognizedAttributes="true">
+      <collection addElement="provider" clearElement="clear">
+        <attribute name="name" type="string" required="true" />
+      </collection>
+    </element>
+
+    <!-- These settings decide whether clients can set backup settings at their site-level using the backupSettingsProvider -->
+    <element name="backupSettingsProvider" allowUnrecognizedAttributes="true">
+      <attribute name="canSetEnabled" type="bool" defaultValue="false" />
+      <attribute name="canSetNumberOfBackups" type="bool" defaultValue="false" />
+      <attribute name="canSetContinueSyncOnBackupFailure" type="bool" defaultValue="false" />
+      <attribute name="canAddExcludedProviders" type="bool" defaultValue="false" />
+    </element>
+
+  </sectionSchema>
+</configSchema>

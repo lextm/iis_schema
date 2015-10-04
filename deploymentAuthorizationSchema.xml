@@ -1,0 +1,39 @@
+<configSchema>
+  <sectionSchema name="system.webServer/management/delegation" allowUnrecognizedAttributes="true">
+    <attribute name="providerType" type="string" />
+    <attribute name="allowAdministrators" type="bool" defaultValue="true" />
+    <collection addElement="rule" allowUnrecognizedAttributes="true">
+      <attribute name="enabled" type="bool" defaultValue="true" />
+      <attribute name="providers" type="string" required="true" isCombinedKey="true" />
+      <attribute name="actions" type="string" required="true" isCombinedKey="true" />
+      <attribute name="path" type="string" required="true" isCombinedKey="true" expanded="true" />
+      <attribute name="pathType" type="enum" defaultValue="PathPrefix">
+        <enum name="PathPrefix" value="1" />
+        <enum name="StringPrefix" value="2" />
+        <enum name="StringSuffix" value="3" />
+        <enum name="ConnectionString" value="4" />
+        <enum name="RegularExpression" value="5" />
+      </attribute>
+      <element name="permissions">
+        <collection addElement="user" allowUnrecognizedAttributes="true">
+          <attribute name="name" type="string" required="true" isUniqueKey="true" />
+          <attribute name="isRole" type="bool" defaultValue="false" />
+          <attribute name="accessType" type="enum" defaultValue="Allow">
+            <enum name="Allow" value="1" />
+            <enum name="Deny" value="2" />
+          </attribute>
+        </collection>
+      </element>
+      <element name="runAs">
+        <attribute name="identityType" type="enum" defaultValue="CurrentUser">
+          <enum name="CurrentUser" value="1" />
+          <enum name="ProcessIdentity" value="2" />
+          <enum name="SpecificUser" value="3" />
+        </attribute>
+        <attribute name="userName" type="string" validationType="nonEmptyString" />
+        <attribute name="password" type="string" caseSensitive="true" encrypted="true" defaultValue="[enc:RsaProtectedConfigurationProvider::enc]" />
+      </element>
+    </collection>
+  </sectionSchema>
+</configSchema>
+ 
