@@ -64,12 +64,14 @@
             <attribute name="requireSSL" type="bool" defaultValue="False" />
             <attribute name="slidingExpiration" type="bool" defaultValue="True" />
             <attribute name="timeout" type="timeSpan" validationType="timeSpanRange" timeSpanFormat="minutes" defaultValue="30" validationParameter="60,2147483640,60" />
+            <attribute name="ticketCompatibilityMode" type="string" validationType="nonEmptyString" />
         </element>
         <attribute name="mode" type="enum" defaultValue="Windows">
             <enum name="None" value="0" />
             <enum name="Windows" value="1" />
             <enum name="Passport" value="2" />
             <enum name="Forms" value="3" />
+            <enum name="Federated" value="4"/>
         </attribute>
         <element name="passport">
             <attribute name="redirectUrl" type="string" defaultValue="internal" />
@@ -116,6 +118,7 @@
         </element>
         <attribute name="debug" type="bool" defaultValue="False" />
         <attribute name="defaultLanguage" type="string" defaultValue="vb" />
+        <attribute name="enablePrefetchOptimization" type="bool" defaultValue="False" />
         <attribute name="explicit" type="bool" defaultValue="True" />
         <element name="expressionBuilders">
             <collection addElement="add" removeElement="remove" clearElement="clear">
@@ -129,8 +132,18 @@
         <attribute name="strict" type="bool" defaultValue="False" />
         <attribute name="tempDirectory" type="string" />
         <attribute name="urlLinePragmas" type="bool" defaultValue="False" />
+        <attribute name="profileGuidedOptimizations" type="string" defaultValue="All" />
+        <attribute name="optimizeCompilations" type="bool" defaultValue="False" />
+        <attribute name="targetFramework" type="string" />
+        <element name="folderLevelBuildProviders">
+            <collection addElement="add" removeElement="remove" clearElement="clear">
+                <attribute name="name" required="true" isUniqueKey="true" type="string" validationType="nonEmptyString" />
+                <attribute name="type" required="true" isUniqueKey="false" type="string" validationType="nonEmptyString" />
+            </collection>
+        </element>
     </sectionSchema>
     <sectionSchema name="system.web/customErrors">
+        <attribute name="allowNestedErrors" type="bool" defaultValue="False" />
         <attribute name="defaultRedirect" type="string" />
         <collection addElement="error">
             <attribute name="redirect" required="true" type="string" validationType="nonEmptyString" />
@@ -141,6 +154,7 @@
             <enum name="On" value="1" />
             <enum name="Off" value="2" />
         </attribute>
+        <attribute name="redirectMode" type="string" validationType="nonEmptyString" defaultValue="ResponseRedirect" />
     </sectionSchema>
     <sectionSchema name="system.web/deviceFilters">
         <collection addElement="filter">
@@ -255,6 +269,21 @@
         <attribute name="shutdownTimeout" type="timeSpan" timeSpanFormat="seconds" defaultValue="90" />
         <attribute name="useFullyQualifiedRedirectUrl" type="bool" defaultValue="False" />
         <attribute name="waitChangeNotification" type="int" validationType="integerRange" validationParameter="0,2147483647" defaultValue="0" />
+        <attribute name="maxUrlLength" type="int" defaultValue="260" />
+        <attribute name="maxQueryStringLength" type="int" defaultValue="2048" />
+        <attribute name="relaxedUrlToFileSystemMapping" type="bool" defaultValue="False" />
+        <attribute name="requestPathInvalidCharacters" type="string" />
+        <attribute name="requestValidationMode" type="string" />
+        <attribute name="requestValidationType" type="string" />
+        <attribute name="encoderType" type="string" />
+        <attribute name="asyncPreloadMode" type="enum" defaultValue="None">
+            <enum name="None" value="0" />
+            <enum name="Form" value="1" />
+            <enum name="FormMultiPart" value="2" />
+            <enum name="NonForm" value="4" />
+            <enum name="AllFormTypes" value="3" />
+            <enum name="All" value="7" />
+        </attribute>
     </sectionSchema>
     <sectionSchema name="system.web/identity" allowUnrecognizedAttributes="true">
         <attribute name="impersonate" type="bool" defaultValue="False" />
@@ -269,8 +298,18 @@
             <enum name="SHA1" value="1" />
             <enum name="3DES" value="2" />
             <enum name="AES" value="3" />
+            <enum name="HMACSHA256" value="4" />
+            <enum name="HMACSHA384" value="5" />
+            <enum name="HMACSHA512" value="6" />
         </attribute>
         <attribute name="validationKey" type="string" validationType="requireTrimmedString" defaultValue="AutoGenerate,IsolateApps" />
+        <attribute name="applicationName" type="string" defaultValue="" />
+        <attribute name="dataProtectorType" type="string" defaultValue="" />
+        <attribute name="compatibilityMode" type="enum" defaultValue="Framework20SP1">
+            <enum name="Framework20SP1" value="0" />
+            <enum name="Framework20SP2" value="1" />
+            <enum name="Framework45" value="2" />
+        </attribute>
     </sectionSchema>
     <sectionSchema name="system.web/mobileControls">
         <attribute name="allowCustomAttributes" type="bool" defaultValue="False" />
@@ -341,6 +380,9 @@
             <enum name="Always" value="1" />
             <enum name="Never" value="2" />
         </attribute>
+        <attribute name="renderAllHiddenFieldsAtTopOfForm" type="bool" defaultValue="True" />
+        <attribute name="controlRenderingCompatibilityVersion" type="string" defaultValue="4.5" />
+        <attribute name="clientIDMode" type="string" defaultValue="Predictable" />
     </sectionSchema>
     <sectionSchema name="system.web/protocols">
         <collection addElement="add" removeElement="remove" clearElement="clear">
@@ -393,6 +435,8 @@
         <attribute name="stateNetworkTimeout" type="timeSpan" allowInfinite="true" timeSpanFormat="seconds" defaultValue="10" />
         <attribute name="timeout" type="timeSpan" validationType="timeSpanRange" validationParameter="1,2147483640,60" allowInfinite="true" timeSpanFormat="minutes" defaultValue="20" />
         <attribute name="useHostingIdentity" type="bool" defaultValue="True" />
+        <attribute name="sqlConnectionRetryInterval" type="timeSpan" allowInfinite="true" timeSpanFormat="seconds" defaultValue="0" />
+        <attribute name="compressionEnabled" type="bool" defaultValue="False" />
     </sectionSchema>
     <sectionSchema name="system.web/siteMap">
         <attribute name="defaultProvider" type="string" validationType="nonEmptyString" defaultValue="AspNetXmlSiteMapProvider" />
@@ -420,6 +464,7 @@
         <attribute name="level" type="string" validationType="nonEmptyString" defaultValue="Full" />
         <attribute name="originUrl" type="string" />
         <attribute name="processRequestInApplicationTrust" type="bool" defaultValue="True" />
+        <attribute name="legacyCasModel" type="bool" defaultValue="False" />
     </sectionSchema>
     <sectionSchema name="system.web/urlMappings">
         <attribute name="enabled" type="bool" defaultValue="True" />
@@ -579,4 +624,18 @@
         <attribute name="enabled" type="bool" defaultValue="True" />
         <attribute name="pollTime" type="int" defaultValue="60000" />
     </sectionSchema>
+    <sectionSchema name="system.web/fullTrustAssemblies">
+        <collection addElement="add" removeElement="remove" clearElement="clear">
+            <attribute name="assemblyName" required="true" isUniqueKey="false" type="string" validationType="nonEmptyString" />
+            <attribute name="version" required="true" isUniqueKey="false" type="string" validationType="nonEmptyString" />
+            <attribute name="publicKey" required="true" isUniqueKey="false" type="string" validationType="nonEmptyString" />
+        </collection>
+     </sectionSchema>
+    <sectionSchema name="system.web/partialTrustVisibleAssemblies">
+        <collection addElement="add" removeElement="remove" clearElement="clear">
+            <attribute name="assemblyName" required="true" isUniqueKey="false" type="string" validationType="nonEmptyString" />
+            <attribute name="version" required="true" isUniqueKey="false" type="string" validationType="nonEmptyString" />
+            <attribute name="publicKey" required="true" isUniqueKey="false" type="string" validationType="nonEmptyString" />
+        </collection>
+     </sectionSchema>
 </configSchema>

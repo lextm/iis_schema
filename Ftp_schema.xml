@@ -113,8 +113,15 @@
                   <attribute name="enabled" type="bool" defaultValue="true" />
                   </collection>
               </element>   
-          </element>      
+            </element>      
           </element>
+
+          <element name="customAuthorization">
+            <element name="provider">
+              <attribute name="name" type="string"/>
+              <attribute name="enabled" type="bool" defaultValue="true" />
+            </element>
+          </element>    
         </element>
 
         <element name="customFeatures">
@@ -214,37 +221,8 @@
             <flag name="LogInfrastructure" value="4" /> 
           </attribute>
         </element>
-
-        <attribute name="state" type="enum" extension="Microsoft.ApplicationHostFtpConfigExtension">
-            <enum name="Starting" value="0" />
-            <enum name="Started" value="1" />
-            <enum name="Stopping" value="2" />
-            <enum name="Stopped" value="3" />        
-            <enum name="Unknown" value="4" />
-        </attribute>
-        
-        <attribute name="lastStartupStatus" type="uint" extension="Microsoft.ApplicationHostFtpConfigExtension"/>
-        
-        <element name="sessions" extension="Microsoft.ApplicationHostFtpConfigExtension">
-            <collection addElement="session">
-              <attribute name="clientIp" type="string" />
-              <attribute name="sessionId" type="string" />
-              <attribute name="sessionStartTime" type="string" />
-              <attribute name="userName" type="string" />
-               <attribute name="currentCommand" type="string" />
-                 <attribute name="previousCommand" type="string" />
-               <attribute name="commandStartTime" type="string" />
-               <attribute name="bytesSent" type="int64" />
-                <attribute name="bytesReceived" type="int64" />
-                 <attribute name="lastErrorStatus" type="uint" />
-              <method name="Terminate" extension="Microsoft.ApplicationHostFtpConfigExtension"/>
-            </collection>
-        </element>
-        <method name="Start" extension="Microsoft.ApplicationHostFtpConfigExtension" />
-        <method name="Stop" extension="Microsoft.ApplicationHostFtpConfigExtension" />
-        <method name="FlushLog" extension="Microsoft.ApplicationHostFtpConfigExtension" />
       </element>
-
+        
     </collection>
 
     <!-- siteDefaults specific to FTP  -->
@@ -352,6 +330,13 @@
               </element>   
             </element>
           </element>
+
+          <element name="customAuthorization">
+            <element name="provider">
+              <attribute name="name" type="string"/>
+              <attribute name="enabled" type="bool" defaultValue="true" />
+            </element>
+          </element>            
         </element>
         
         <element name="customFeatures">
@@ -586,11 +571,19 @@
     </element>
   </sectionSchema>
 
+  <sectionSchema name="system.ftpServer/security/authentication">
+    <element name="denyByFailure">
+        <attribute name="enabled" type="bool" defaultValue="false" />
+        <attribute name="maxFailure" type="uint" defaultValue="4" validationType="integerRange" validationParameter="1,4294967295" />
+        <attribute name="entryExpiration" type="timeSpan" defaultValue="00:00:30" />
+        <attribute name="loggingOnlyMode" type="bool" defaultValue="false" />
+    </element>
+  </sectionSchema>
+    
   <sectionSchema name="system.ftpServer/caching">
       <element name="credentialsCache">
           <attribute name="enabled" type="bool" defaultValue="true" />
           <attribute name="flushInterval" type="uint" defaultValue="900" validationType="integerRange"  validationParameter="5,604800"/>
-          <method name="Flush" extension="Microsoft.ApplicationHostFtpConfigExtension"/>
       </element>
   </sectionSchema>
 
@@ -598,6 +591,6 @@
     <element name="hostNameSupport">
       <attribute name="useDomainNameAsHostName" type="bool" defaultValue="false" />
     </element>      
-  </sectionSchema>        
-  
+  </sectionSchema>
+    
 </configSchema>

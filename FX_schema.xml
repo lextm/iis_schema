@@ -40,6 +40,10 @@
                 <attribute name="type" type="string" />
                 <attribute name="warningLevel" type="int" />
                 <attribute name="compilerOptions" type="string" />
+                <collection addElement="providerOption" >
+                    <attribute name="name" type="string"  isCombinedKey="true" />
+                    <attribute name="value" type="string" isCombinedKey="true" />
+                </collection>
             </collection>
         </element>
     </sectionSchema>
@@ -112,7 +116,7 @@
         <element name="switches">
             <collection addElement="add" removeElement="remove" clearElement="clear" allowUnrecognizedAttributes="true">
                 <attribute name="name" type="string" required="true" isUniqueKey="true" defaultValue="" />
-                <attribute name="type" type="string" required="true" />
+                <attribute name="value" type="string" required="true" />
             </collection>
         </element>
         <element name="trace">

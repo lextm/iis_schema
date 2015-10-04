@@ -27,7 +27,9 @@
         type=""  [bool|enum|flags|uint|int|int64|string|timeSpan, Required] [Runtime type]
         required="false"  [bool] [Indicates if it must be set]
         isUniqueKey="false"  [bool] [Serves as the collection key]
-        isCombinedKey="false"  [bool] [Part of a multi-attribute key]
+	isCombinedKey="false"  [bool] [Part of a multi-attribute key]
+	displayHex="false" [bool] [Indicates if value should be written in hex format]
+	caseSensitive="false" [bool] [Indicates if attribute value is case-sensitive]
         defaultValue=""  [String] [Default value or comma-delimited flags]
         encrypted="false"  [bool] [Indicates if the value persisted is encrypted]
         allowInfinite="false"  [bool] [Indicates if "Infinite" can be set]
@@ -67,7 +69,22 @@
     
         The following validator fails on these characters: |<>&\"/[]+=;:,?*@
         validationType="applicationPoolName"
+	validationParameter=""
+
+        The following validator fails on these characters: /?
+        validationType="siteName"
         validationParameter=""
+
+	The following validator fails if value is not valid application path.
+	Valid applicationPath starts with "/" and doesn't end with "/" except
+	for path "/". Segment between two "/" cannot be "." or ".."
+        validationType="applicationPath"
+	validationParameter=""
+
+	The following validator fails if value is not valid virtual directory path.
+	Rules for virtualDirectoryPath are same as applicationPath
+        validationType="virtualDirectoryPath"
+	validationParameter=""
 
         The following validator fails if value is outside [inside] range, in integers.
         validationType="integerRange"
@@ -75,10 +92,6 @@
 
         The following validator fails if string value is not set.
         validationType="nonEmptyString"
-        validationParameter=""
-
-        The following validator fails on these characters: /?
-        validationType="siteName"
         validationParameter=""
 
         The following validator fails if value is outside [inside] range, in seconds.
@@ -97,7 +110,7 @@
       <attribute name="queueLength" type="uint" defaultValue="1000" validationType="integerRange" validationParameter="10,65535"/>
       <attribute name="autoStart" type="bool" defaultValue="true" />
       <attribute name="enable32BitAppOnWin64" type="bool" defaultValue="false" />
-      <attribute name="managedRuntimeVersion" type="string" defaultValue="v2.0" />
+      <attribute name="managedRuntimeVersion" type="string" defaultValue="" />
       <attribute name="managedRuntimeLoader" type="string" defaultValue="webengine4.dll" />
       <attribute name="enableConfigurationOverride" type="bool" defaultValue="true" />
       <attribute name="managedPipelineMode" type="enum" defaultValue="Integrated">
@@ -128,12 +141,15 @@
         </attribute>
         <attribute name="manualGroupMembership" type="bool" defaultValue="false"/>
         <attribute name="idleTimeout" type="timeSpan" defaultValue="00:20:00" validationType="timeSpanRange" validationParameter="0,2592000,60"/>
-        <attribute name="maxProcesses" type="uint" defaultValue="1" validationType="integerRange" validationParameter="1,2147483647" />
+        <attribute name="maxProcesses" type="uint" defaultValue="1" validationType="integerRange" validationParameter="0,2147483647" />
         <attribute name="shutdownTimeLimit" type="timeSpan" defaultValue="00:01:30" validationType="timeSpanRange" validationParameter="1,4294967,1"/>
         <attribute name="startupTimeLimit" type="timeSpan" defaultValue="00:01:30" validationType="timeSpanRange" validationParameter="1,4294967,1"/>
         <attribute name="pingingEnabled" type="bool" defaultValue="true"/>
         <attribute name="pingInterval" type="timeSpan" defaultValue="00:00:30" validationType="timeSpanRange" validationParameter="1,4294967,1"/>
         <attribute name="pingResponseTime" type="timeSpan" defaultValue="00:01:30" validationType="timeSpanRange" validationParameter="1,4294967,1"/>
+        <attribute name="logEventOnProcessModel" type="flags" defaultValue="IdleTimeout" >
+          <flag name="IdleTimeout" value="1"/>
+        </attribute>  
       </element>
       <element name="recycling">
         <attribute name="disallowOverlappingRotation" type="bool" defaultValue="false"/>
@@ -179,11 +195,22 @@
         <attribute name="action" type="enum" defaultValue="NoAction">
           <enum name="NoAction" value="0"/>
           <enum name="KillW3wp" value="1"/>
+          <enum name="Throttle" value="2"/>
+          <enum name="ThrottleUnderLoad" value="3"/>
         </attribute>
         <attribute name="resetInterval" type="timeSpan" defaultValue="00:05:00" validationType="timeSpanRange" validationParameter="0,86400,60"/>
         <attribute name="smpAffinitized" type="bool" defaultValue="false"/>
         <attribute name="smpProcessorAffinityMask" type="uint" defaultValue="4294967295"/>
         <attribute name="smpProcessorAffinityMask2" type="uint" defaultValue="4294967295"/>
+        <attribute name="processorGroup" type="int" defaultValue="0" validationType="integerRange" validationParameter="0,2147483647"/>
+        <attribute name="numaNodeAssignment" type="enum" defaultValue="MostAvailableMemory">
+            <enum name="MostAvailableMemory" value="0"/>
+            <enum name="WindowsScheduling" value="1"/>
+        </attribute >
+        <attribute name="numaNodeAffinityMode" type="enum" defaultValue="Soft">
+            <enum name="Soft" value="0" />
+            <enum name="Hard" value="1" />
+        </attribute>
       </element>
     </collection>
     <element name="applicationPoolDefaults" isCollectionDefault="true" >
@@ -191,7 +218,7 @@
       <attribute name="queueLength" type="uint" defaultValue="1000" validationType="integerRange" validationParameter="10,65535"/>
       <attribute name="autoStart" type="bool" defaultValue="true" />
       <attribute name="enable32BitAppOnWin64" type="bool" defaultValue="false" />
-      <attribute name="managedRuntimeVersion" type="string" defaultValue="v2.0" />
+      <attribute name="managedRuntimeVersion" type="string" defaultValue="" />
       <attribute name="managedRuntimeLoader" type="string" defaultValue="webengine4.dll" />
       <attribute name="enableConfigurationOverride" type="bool" defaultValue="true" />
       <attribute name="managedPipelineMode" type="enum" defaultValue="Integrated">
@@ -222,17 +249,20 @@
         </attribute>
         <attribute name="manualGroupMembership" type="bool" defaultValue="false"/>
         <attribute name="idleTimeout" type="timeSpan" defaultValue="00:20:00" validationType="timeSpanRange" validationParameter="0,2592000,60"/>
-        <attribute name="maxProcesses" type="uint" defaultValue="1" validationType="integerRange" validationParameter="1,2147483647" />
+        <attribute name="maxProcesses" type="uint" defaultValue="1" validationType="integerRange" validationParameter="0,2147483647" />
         <attribute name="shutdownTimeLimit" type="timeSpan" defaultValue="00:01:30" validationType="timeSpanRange" validationParameter="1,4294967,1"/>
         <attribute name="startupTimeLimit" type="timeSpan" defaultValue="00:01:30" validationType="timeSpanRange" validationParameter="1,4294967,1"/>
         <attribute name="pingingEnabled" type="bool" defaultValue="true"/>
         <attribute name="pingInterval" type="timeSpan" defaultValue="00:00:30" validationType="timeSpanRange" validationParameter="1,4294967,1"/>
         <attribute name="pingResponseTime" type="timeSpan" defaultValue="00:01:30" validationType="timeSpanRange" validationParameter="1,4294967,1"/>
+        <attribute name="logEventOnProcessModel" type="flags" defaultValue="IdleTimeout" >
+          <flag name="IdleTimeout" value="1"/>
+        </attribute>  
       </element>
       <element name="recycling">
         <attribute name="disallowOverlappingRotation" type="bool" defaultValue="false"/>
         <attribute name="disallowRotationOnConfigChange" type="bool" defaultValue="false"/>
-        <attribute name="logEventOnRecycle" type="flags" defaultValue="Time, Memory, PrivateMemory">
+        <attribute name="logEventOnRecycle" type="flags" defaultValue="Time, Memory, PrivateMemory" >
           <flag name="Time" value="1"/>
           <flag name="Requests" value="2"/>
           <flag name="Schedule" value="4"/>
@@ -273,11 +303,22 @@
         <attribute name="action" type="enum" defaultValue="NoAction">
           <enum name="NoAction" value="0"/>
           <enum name="KillW3wp" value="1"/>
+          <enum name="Throttle" value="2"/>
+          <enum name="ThrottleUnderLoad" value="3"/>  
         </attribute>
         <attribute name="resetInterval" type="timeSpan" defaultValue="00:05:00" validationType="timeSpanRange" validationParameter="0,86400,60"/>
         <attribute name="smpAffinitized" type="bool" defaultValue="false"/>
         <attribute name="smpProcessorAffinityMask" type="uint" defaultValue="4294967295"/>
         <attribute name="smpProcessorAffinityMask2" type="uint" defaultValue="4294967295"/>
+        <attribute name="processorGroup" type="int" defaultValue="0" validationType="integerRange" validationParameter="0,2147483647"/>
+        <attribute name="numaNodeAssignment" type="enum" defaultValue="MostAvailableMemory">
+            <enum name="MostAvailableMemory" value="0"/>
+            <enum name="WindowsScheduling" value="1"/>
+        </attribute >
+        <attribute name="numaNodeAffinityMode" type="enum" defaultValue="Soft">
+            <enum name="Soft" value="0" />
+            <enum name="Hard" value="1" />
+        </attribute>
       </element>
     </element>
   </sectionSchema>
@@ -360,7 +401,7 @@
       </attribute>
       <attribute name="truncateSize" type="int64" defaultValue="20971520" validationType="integerRange" validationParameter="1048576,4294967295" />
       <attribute name="localTimeRollover" type="bool" defaultValue="false"/>
-      <attribute name="logExtFileFlags" type="flags" defaultValue="Date, Time, ClientIP, UserName, SiteName, ServerIP, Method, UriStem, UriQuery, TimeTaken, HttpStatus, Win32Status, ServerPort, UserAgent, HttpSubStatus">
+      <attribute name="logExtFileFlags" type="flags" defaultValue="Date, Time, ClientIP, UserName, SiteName, ServerIP, Method, UriStem, UriQuery, TimeTaken, HttpStatus, Win32Status, ServerPort, UserAgent, HttpSubStatus, Referer">
         <flag name="Date" value="1"/>
         <flag name="Time" value="2"/>
         <flag name="ClientIP" value="4"/>
@@ -403,15 +444,17 @@
         <collection addElement="binding" clearElement="clear">
           <attribute name="protocol" type="string" required="true" isCombinedKey="true" validationType="nonEmptyString" />
           <attribute name="bindingInformation" type="string" required="true" isCombinedKey="true" validationType="nonEmptyString" />
+          <attribute name="sslFlags" type="uint" defaultValue="0" />
         </collection>
       </element>
       <element name="limits">
         <attribute name="maxBandwidth" type="uint" validationType="integerRange" validationParameter="0,1023,exclude" defaultValue="4294967295"/>
         <attribute name="maxConnections" type="uint" defaultValue="4294967295" />
         <attribute name="connectionTimeout" type="timeSpan" defaultValue="00:02:00" validationType="timeSpanRange" validationParameter="0,65535,1" />
+        <attribute name="maxUrlSegments" type="uint" validationType="integerRange" validationParameter="0,16383" defaultValue="32" />
       </element>
       <element name="logFile">
-        <attribute name="logExtFileFlags" type="flags" defaultValue="Date, Time, ClientIP, UserName, ServerIP, Method, UriStem, UriQuery, TimeTaken, HttpStatus, Win32Status, ServerPort, UserAgent, HttpSubStatus">
+        <attribute name="logExtFileFlags" type="flags" defaultValue="Date, Time, ClientIP, UserName, ServerIP, Method, UriStem, UriQuery, TimeTaken, HttpStatus, Win32Status, ServerPort, UserAgent, HttpSubStatus, Referer">
           <flag name="Date" value="1"/>
           <flag name="Time" value="2"/>
           <flag name="ClientIP" value="4"/>
@@ -453,12 +496,13 @@
         <attribute name="truncateSize" type="int64" defaultValue="20971520" validationType="integerRange" validationParameter="1048576,4294967295" />
         <attribute name="localTimeRollover" type="bool" defaultValue="false"/>
         <attribute name="enabled" type="bool" defaultValue="true" />
+        <attribute name="logSiteId" type="bool" defaultValue="true" />  
       </element>
       <element name="traceFailedRequestsLogging">
         <attribute name="enabled" type="bool" defaultValue="false" />
         <attribute name="directory" type="string" expanded="true" defaultValue="%SystemDrive%\inetpub\logs\FailedReqLogFiles"/>
         <attribute name="maxLogFiles" type="uint" defaultValue="50" validationType="integerRange" validationParameter="1,10000"/>
-        <attribute name="maxLogFileSizeKB" type="uint" defaultValue="512" validationType="integerRange" validationParameter="0,1048576"/>
+        <attribute name="maxLogFileSizeKB" type="uint" defaultValue="1024" validationType="integerRange" validationParameter="0,1048576"/>
         <attribute name="customActionsEnabled" type="bool" defaultValue="false"/>
       </element>
       <collection addElement="application" defaultElement="applicationDefaults" >
@@ -467,6 +511,7 @@
         <attribute name="enabledProtocols" type="string" defaultValue="http"/>
         <attribute name="serviceAutoStartEnabled" type="bool" defaultValue="false" />
         <attribute name="serviceAutoStartProvider" type="string" />
+        <attribute name="preloadEnabled" type="bool" defaultValue="false" />
         <collection addElement="virtualDirectory" defaultElement="virtualDirectoryDefaults" >
           <attribute name="path" type="string" isUniqueKey="true" validationType="virtualDirectoryPath" />
           <attribute name="physicalPath" type="string" expanded="true" />
@@ -500,6 +545,7 @@
         <attribute name="enabledProtocols" type="string" defaultValue="http"/>
         <attribute name="serviceAutoStartEnabled" type="bool" defaultValue="false" />
         <attribute name="serviceAutoStartProvider" type="string" />
+        <attribute name="preloadEnabled" type="bool" defaultValue="false" />
       </element>
       <element name="virtualDirectoryDefaults" isCollectionDefault="true">
         <attribute name="path" type="string" validationType="virtualDirectoryPath"/>
@@ -523,15 +569,17 @@
         <collection addElement="binding" clearElement="clear">
           <attribute name="protocol" type="string" required="true" isCombinedKey="true" validationType="nonEmptyString" />
           <attribute name="bindingInformation" type="string" required="true" isCombinedKey="true" validationType="nonEmptyString" />
+          <attribute name="sslFlags" type="uint" defaultValue="0" />
         </collection>
       </element>
       <element name="limits">
         <attribute name="maxBandwidth" type="uint" validationType="integerRange" validationParameter="0,1023,exclude" defaultValue="4294967295"/>
         <attribute name="maxConnections" type="uint" defaultValue="4294967295"/>
         <attribute name="connectionTimeout" type="timeSpan" defaultValue="00:02:00" validationType="timeSpanRange" validationParameter="0,65535,1"/>
+        <attribute name="maxUrlSegments" type="uint" validationType="integerRange" validationParameter="0,16383" defaultValue="32" />
       </element>
       <element name="logFile">
-        <attribute name="logExtFileFlags" type="flags" defaultValue="Date, Time, ClientIP, UserName, ServerIP, Method, UriStem, UriQuery, TimeTaken, HttpStatus, Win32Status, ServerPort, UserAgent, HttpSubStatus">
+        <attribute name="logExtFileFlags" type="flags" defaultValue="Date, Time, ClientIP, UserName, ServerIP, Method, UriStem, UriQuery, TimeTaken, HttpStatus, Win32Status, ServerPort, UserAgent, HttpSubStatus, Referer">
           <flag name="Date" value="1"/>
           <flag name="Time" value="2"/>
           <flag name="ClientIP" value="4"/>
@@ -573,12 +621,13 @@
         <attribute name="truncateSize" type="int64" defaultValue="20971520" validationType="integerRange" validationParameter="1048576,4294967295" />
         <attribute name="localTimeRollover" type="bool" defaultValue="false"/>
         <attribute name="enabled" type="bool" defaultValue="true" />
+        <attribute name="logSiteId" type="bool" defaultValue="true" />
       </element>
       <element name="traceFailedRequestsLogging">
         <attribute name="enabled" type="bool" defaultValue="false" />
         <attribute name="directory" type="string" expanded="true" defaultValue="%SystemDrive%\inetpub\FailedReqLogFiles"/>
         <attribute name="maxLogFiles" type="uint" defaultValue="50" validationType="integerRange" validationParameter="1,10000"/>
-        <attribute name="maxLogFileSizeKB" type="uint" defaultValue="512" validationType="integerRange" validationParameter="0,1048576"/>
+        <attribute name="maxLogFileSizeKB" type="uint" defaultValue="1024" validationType="integerRange" validationParameter="0,1048576"/>
         <attribute name="customActionsEnabled" type="bool" defaultValue="false"/>
       </element>
     </element>      
@@ -988,6 +1037,16 @@
       <attribute name="preCondition" type="string" caseSensitive="true" />
     </collection>
   </sectionSchema>
+
+  <sectionSchema name="system.webServer/applicationInitialization">
+    <attribute name="remapManagedRequestsTo" type="string" defaultValue="" />
+    <attribute name="skipManagedModules" type="bool" defaultValue="false" />
+    <attribute name="doAppInitAfterRestart" type="bool" defaultValue="false" />
+    <collection addElement="add" clearElement="clear" removeElement="remove" mergeElement="false">
+      <attribute name="initializationPage" type="string" required="true" isUniqueKey="true" />
+      <attribute name="hostName" type="string" defaultValue="" />
+    </collection>
+  </sectionSchema>
   
   <sectionSchema name="system.webServer/odbcLogging">
     <attribute name="dataSource" type="string" caseSensitive="true" defaultValue="InternetDb" />
@@ -1140,12 +1199,39 @@
   <sectionSchema name="system.webServer/security/ipSecurity">
     <attribute name="enableReverseDns" type="bool" defaultValue="false" />
     <attribute name="allowUnlisted" type="bool" defaultValue="true" />
+    <attribute name="enableProxyMode" type="bool" defaultValue="false" />
+    <attribute name="denyAction" type="enum" defaultValue="Forbidden">
+      <enum name="AbortRequest" value="0" />
+      <enum name="Unauthorized" value="401" />
+      <enum name="Forbidden" value="403" />
+      <enum name="NotFound" value="404" />
+    </attribute>
     <collection addElement="add" clearElement="clear" removeElement="remove">
       <attribute name="ipAddress" type="string" isCombinedKey="true" />
       <attribute name="subnetMask" type="string" isCombinedKey="true" defaultValue="255.255.255.255" />
       <attribute name="domainName" type="string" isCombinedKey="true" />
       <attribute name="allowed" type="bool" defaultValue="false" />
     </collection>
+  </sectionSchema>
+
+  <sectionSchema name="system.webServer/security/dynamicIpSecurity">
+    <attribute name="denyAction" type="enum" defaultValue="Forbidden">
+      <enum name="AbortRequest" value="0" />
+      <enum name="Unauthorized" value="401" />
+      <enum name="Forbidden" value="403" />
+      <enum name="NotFound" value="404" />
+    </attribute>
+    <attribute name="enableProxyMode" type="bool" defaultValue="false" />
+    <attribute name="enableLoggingOnlyMode" type="bool" defaultValue="false" />
+    <element name="denyByConcurrentRequests">
+      <attribute name="enabled" type="bool" defaultValue="false" />
+      <attribute name="maxConcurrentRequests" type="uint" defaultValue="5" validationType="integerRange" validationParameter="1,4294967295"/>
+    </element>
+    <element name="denyByRequestRate">
+      <attribute name="enabled" type="bool" defaultValue="false" />
+      <attribute name="maxRequests" type="uint" defaultValue="20" validationType="integerRange" validationParameter="1,4294967295" />
+      <attribute name="requestIntervalInMilliseconds" type="uint" defaultValue="200" validationType="integerRange" validationParameter="1,4294967295" />
+    </element>
   </sectionSchema>
   
   <sectionSchema name="system.webServer/security/isapiCgiRestriction">
@@ -1272,12 +1358,13 @@
       <attribute name="cacheControlMaxAge" type="timeSpan" defaultValue="1.00:00:00" />
       <attribute name="httpExpires" type="string" />
       <attribute name="cacheControlCustom" type="string" />
+      <attribute name="setEtag" type="bool" defaultValue="true" />
     </element>
     <attribute name="defaultDocFooter" type="string" caseSensitive="true" />
     <attribute name="isDocFooterFileName" type="bool" defaultValue="false" />
     <attribute name="enableDocFooter" type="bool" defaultValue="false" />
     <collection addElement="mimeMap" clearElement="clear" removeElement="remove">
-      <attribute name="fileExtension" type="string" required="true" isUniqueKey="true" validationType="nonEmptyString" />
+      <attribute name="fileExtension" type="string" required="true" isUniqueKey="true" />
       <attribute name="mimeType" type="string" required="true" validationType="nonEmptyString" />
     </collection>
   </sectionSchema>
@@ -1338,6 +1425,12 @@
     <attribute name="validateIntegratedModeConfiguration" type="bool" defaultValue="true" />
   </sectionSchema>
 
+  <sectionSchema name="system.webServer/webSocket">
+    <attribute name="enabled" type="bool" defaultValue="true"/>
+    <attribute name="receiveBufferLimit" type="uint" defaultValue="4194304" validationType="integerRange"  validationParameter="4096,2147483647"/>
+    <attribute name="pingInterval" type="timeSpan" defaultValue="00:00:00" validationType="timeSpanRange" validationParameter="0,86400,1"  />
+  </sectionSchema>
+  
   <sectionSchema name="configPaths">
     <collection addElement="searchResult">
       <attribute name="path" type="string" />
