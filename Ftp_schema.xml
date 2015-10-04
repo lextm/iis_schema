@@ -203,6 +203,7 @@
             <flag name="FullPath" value="8388608"/>
             <flag name="Info" value="16777216"/>
             <flag name="ClientPort" value="33554432"/>
+            <flag name="PhysicalPath" value="67108864"/>
           </attribute>
           <attribute name="directory" type="string" expanded="true" defaultValue="%SystemDrive%\inetpub\logs\LogFiles" validationType="nonEmptyString" />
           <attribute name="period" type="enum" defaultValue="Daily">
@@ -424,6 +425,7 @@
             <flag name="FullPath" value="8388608"/>
             <flag name="Info" value="16777216"/>
             <flag name="ClientPort" value="33554432"/>
+            <flag name="PhysicalPath" value="67108864"/>
           </attribute>
           <attribute name="directory" type="string" expanded="true" defaultValue="%SystemDrive%\inetpub\logs\LogFiles" validationType="nonEmptyString" />
           <attribute name="period" type="enum" defaultValue="Daily">
@@ -477,6 +479,7 @@
         <flag name="FullPath" value="8388608"/>
         <flag name="Info" value="16777216"/>
         <flag name="ClientPort" value="33554432"/>
+        <flag name="PhysicalPath" value="67108864"/>
       </attribute>
       <attribute name="directory" type="string" expanded="true" defaultValue="%SystemDrive%\inetpub\logs\LogFiles" validationType="nonEmptyString" />
       <attribute name="period" type="enum" defaultValue="Daily">

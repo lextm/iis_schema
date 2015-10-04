@@ -141,6 +141,10 @@
         </attribute>
         <attribute name="manualGroupMembership" type="bool" defaultValue="false"/>
         <attribute name="idleTimeout" type="timeSpan" defaultValue="00:20:00" validationType="timeSpanRange" validationParameter="0,2592000,60"/>
+        <attribute name="idleTimeoutAction" type="enum" defaultValue="Terminate">
+          <enum name="Terminate" value="0"/>
+          <enum name="Suspend" value="1"/>
+        </attribute>
         <attribute name="maxProcesses" type="uint" defaultValue="1" validationType="integerRange" validationParameter="0,2147483647" />
         <attribute name="shutdownTimeLimit" type="timeSpan" defaultValue="00:01:30" validationType="timeSpanRange" validationParameter="1,4294967,1"/>
         <attribute name="startupTimeLimit" type="timeSpan" defaultValue="00:01:30" validationType="timeSpanRange" validationParameter="1,4294967,1"/>
@@ -249,6 +253,10 @@
         </attribute>
         <attribute name="manualGroupMembership" type="bool" defaultValue="false"/>
         <attribute name="idleTimeout" type="timeSpan" defaultValue="00:20:00" validationType="timeSpanRange" validationParameter="0,2592000,60"/>
+        <attribute name="idleTimeoutAction" type="enum" defaultValue="Terminate">
+          <enum name="Terminate" value="0"/>
+          <enum name="Suspend" value="1"/>
+        </attribute>
         <attribute name="maxProcesses" type="uint" defaultValue="1" validationType="integerRange" validationParameter="0,2147483647" />
         <attribute name="shutdownTimeLimit" type="timeSpan" defaultValue="00:01:30" validationType="timeSpanRange" validationParameter="1,4294967,1"/>
         <attribute name="startupTimeLimit" type="timeSpan" defaultValue="00:01:30" validationType="timeSpanRange" validationParameter="1,4294967,1"/>
@@ -485,6 +493,10 @@
           <enum name="W3C" value="2"/>
           <enum name="Custom" value="3"/>
         </attribute>
+        <attribute name="logTargetW3C" type="flags" defaultValue="File">
+          <flag name="File" value="1"/>
+          <flag name="ETW" value="2"/>
+        </attribute>
         <attribute name="directory" type="string" expanded="true" defaultValue="%SystemDrive%\inetpub\logs\LogFiles" validationType="nonEmptyString" />
         <attribute name="period" type="enum" defaultValue="Daily">
           <enum name="MaxSize" value="0"/>
@@ -496,7 +508,21 @@
         <attribute name="truncateSize" type="int64" defaultValue="20971520" validationType="integerRange" validationParameter="1048576,4294967295" />
         <attribute name="localTimeRollover" type="bool" defaultValue="false"/>
         <attribute name="enabled" type="bool" defaultValue="true" />
-        <attribute name="logSiteId" type="bool" defaultValue="true" />  
+        <attribute name="logSiteId" type="bool" defaultValue="true" />
+        <attribute name="flushByEntryCountW3CLog" type="uint" defaultValue="0" />
+        <attribute name="maxLogLineLength" type="uint" validationType="integerRange" validationParameter="2,65536" defaultValue="65536" />
+        <element name="customFields">
+          <attribute name="maxCustomFieldLength" type="uint" validationType="integerRange" validationParameter="2,65536" defaultValue="4096" />
+          <collection addElement="add" clearElement="clear">
+            <attribute name="logFieldName" type="string" required="true" isUniqueKey="true" validationType="nonEmptyString" />
+            <attribute name="sourceName" type="string" required="true" validationType="nonEmptyString" />
+            <attribute name="sourceType" type="enum" required="true" >
+              <enum name="RequestHeader" value="0"/>
+              <enum name="ResponseHeader" value="1"/>
+              <enum name="ServerVariable" value="2"/>
+            </attribute>            
+          </collection>
+        </element>
       </element>
       <element name="traceFailedRequestsLogging">
         <attribute name="enabled" type="bool" defaultValue="false" />
@@ -610,6 +636,10 @@
           <enum name="W3C" value="2"/>
           <enum name="Custom" value="3"/>
         </attribute>
+        <attribute name="logTargetW3C" type="flags" defaultValue="File">
+          <flag name="File" value="1"/>
+          <flag name="ETW" value="2"/>
+        </attribute>
         <attribute name="directory" type="string" expanded="true" defaultValue="%SystemDrive%\inetpub\logs\LogFiles"/>
         <attribute name="period" type="enum" defaultValue="Daily">
           <enum name="MaxSize" value="0"/>
@@ -622,6 +652,20 @@
         <attribute name="localTimeRollover" type="bool" defaultValue="false"/>
         <attribute name="enabled" type="bool" defaultValue="true" />
         <attribute name="logSiteId" type="bool" defaultValue="true" />
+        <attribute name="flushByEntryCountW3CLog" type="uint" defaultValue="0" />
+        <attribute name="maxLogLineLength" type="uint" validationType="integerRange" validationParameter="2,65536" defaultValue="65536" />
+        <element name="customFields">
+          <attribute name="maxCustomFieldLength" type="uint" validationType="integerRange" validationParameter="2,65536" defaultValue="4096" />
+          <collection addElement="add" clearElement="clear">
+            <attribute name="logFieldName" type="string" required="true" isUniqueKey="true" validationType="nonEmptyString" />
+            <attribute name="sourceName" type="string" required="true" validationType="nonEmptyString" />
+            <attribute name="sourceType" type="enum" required="true" >
+              <enum name="RequestHeader" value="0"/>
+              <enum name="ResponseHeader" value="1"/>
+              <enum name="ServerVariable" value="2"/>
+            </attribute>            
+          </collection>
+        </element>
       </element>
       <element name="traceFailedRequestsLogging">
         <attribute name="enabled" type="bool" defaultValue="false" />
@@ -658,6 +702,7 @@
     <attribute name="dynamicIdleThreshold" type="uint" defaultValue="0" validationType="integerRange" validationParameter="0,10000" />
     <attribute name="headerWaitTimeout" type="timeSpan" defaultValue="00:00:00" validationType="timeSpanRange" validationParameter="0,65535,1"/>
     <attribute name="minBytesPerSecond" type="uint" defaultValue="240"/>
+    <attribute name="dynamicRegistrationThreshold" type="uint" validationType="integerRange" validationParameter="0,4294967295" defaultValue="100" />
   </sectionSchema>
 
   <sectionSchema name="system.webServer/asp">
@@ -867,6 +912,7 @@
     <attribute name="noCompressionForHttp10" type="bool" defaultValue="true" />
     <attribute name="noCompressionForProxies" type="bool" defaultValue="true" />
     <attribute name="noCompressionForRange" type="bool" defaultValue="true" />
+    <attribute name="staticCompressionIgnoreHitFrequency" type="bool" defaultValue="false" />    
     <attribute name="staticCompressionDisableCpuUsage" type="uint" defaultValue="100" validationType="integerRange" validationParameter="0,100" />
     <attribute name="staticCompressionEnableCpuUsage" type="uint" defaultValue="50" validationType="integerRange" validationParameter="0,100" />
     <attribute name="dynamicCompressionDisableCpuUsage" type="uint" defaultValue="90" validationType="integerRange" validationParameter="0,100" />
