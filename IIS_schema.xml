@@ -104,9 +104,14 @@
         <enum name="Integrated" value="0" />
         <enum name="Classic" value="1" />
       </attribute>
+      <attribute name="CLRConfigFile" type="string" defaultValue="" expanded="true" />
       <attribute name="passAnonymousToken" type="bool" defaultValue="true" />
+      <attribute name="startMode" type="enum" defaultValue="OnDemand">
+        <enum name="OnDemand" value="0" />
+        <enum name="AlwaysRunning" value="1" />
+      </attribute>
       <element name="processModel">
-        <attribute name="identityType" type="enum" defaultValue="NetworkService">
+        <attribute name="identityType" type="enum" defaultValue="ApplicationPoolIdentity">
           <enum name="LocalSystem" value="0"/>
           <enum name="LocalService" value="1"/>
           <enum name="NetworkService" value="2"/>
@@ -116,6 +121,11 @@
         <attribute name="userName" type="string"/>
         <attribute name="password" type="string" caseSensitive="true" encrypted="true" defaultValue="[enc:IISWASOnlyAesProvider::enc]" />
         <attribute name="loadUserProfile" type="bool" defaultValue="false"/>
+        <attribute name="setProfileEnvironment" type="bool" defaultValue="true"/>
+        <attribute name="logonType" type="enum" defaultValue="LogonBatch">
+          <enum name="LogonBatch" value="0"/>
+          <enum name="LogonService" value="1"/>
+        </attribute>
         <attribute name="manualGroupMembership" type="bool" defaultValue="false"/>
         <attribute name="idleTimeout" type="timeSpan" defaultValue="00:20:00" validationType="timeSpanRange" validationParameter="0,2592000,60"/>
         <attribute name="maxProcesses" type="uint" defaultValue="1" validationType="integerRange" validationParameter="1,2147483647" />
@@ -188,9 +198,14 @@
         <enum name="Integrated" value="0" />
         <enum name="Classic" value="1" />
       </attribute>
+      <attribute name="CLRConfigFile" type="string" defaultValue="" expanded="true" />
       <attribute name="passAnonymousToken" type="bool" defaultValue="true" />
+      <attribute name="startMode" type="enum" defaultValue="OnDemand">
+        <enum name="OnDemand" value="0" />
+        <enum name="AlwaysRunning" value="1" />
+      </attribute>
       <element name="processModel">
-        <attribute name="identityType" type="enum" defaultValue="NetworkService">
+        <attribute name="identityType" type="enum" defaultValue="ApplicationPoolIdentity">
           <enum name="LocalSystem" value="0"/>
           <enum name="LocalService" value="1"/>
           <enum name="NetworkService" value="2"/>
@@ -200,6 +215,11 @@
         <attribute name="userName" type="string"/>
         <attribute name="password" type="string" caseSensitive="true" encrypted="true" defaultValue="[enc:IISWASOnlyAesProvider::enc]" />
         <attribute name="loadUserProfile" type="bool" defaultValue="false"/>
+        <attribute name="setProfileEnvironment" type="bool" defaultValue="true"/>
+        <attribute name="logonType" type="enum" defaultValue="LogonBatch">
+          <enum name="LogonBatch" value="0"/>
+          <enum name="LogonService" value="1"/>
+        </attribute>
         <attribute name="manualGroupMembership" type="bool" defaultValue="false"/>
         <attribute name="idleTimeout" type="timeSpan" defaultValue="00:20:00" validationType="timeSpanRange" validationParameter="0,2592000,60"/>
         <attribute name="maxProcesses" type="uint" defaultValue="1" validationType="integerRange" validationParameter="1,2147483647" />
@@ -244,9 +264,9 @@
         <attribute name="orphanActionParams" type="string" expanded="true"/>
         <attribute name="rapidFailProtection" type="bool" defaultValue="true"/>
         <attribute name="rapidFailProtectionInterval" type="timeSpan" defaultValue="00:05:00" validationType="timeSpanRange" validationParameter="60,8640000,60"/>
-        <attribute name="rapidFailProtectionMaxCrashes" type="uint" defaultValue="5"/>
+        <attribute name="rapidFailProtectionMaxCrashes" type="uint" defaultValue="5" validationType="integerRange" validationParameter="1,2147483647" />
         <attribute name="autoShutdownExe" type="string" expanded="true"/>
-        <attribute name="autoShutdownParams" type="string" expanded="true"/>
+        <attribute name="autoShutdownParams" type="string"  expanded="true"/>
       </element>
       <element name="cpu">
         <attribute name="limit" type="uint" defaultValue="0" validationType="integerRange" validationParameter="0,100000"/>
@@ -257,10 +277,18 @@
         <attribute name="resetInterval" type="timeSpan" defaultValue="00:05:00" validationType="timeSpanRange" validationParameter="0,86400,60"/>
         <attribute name="smpAffinitized" type="bool" defaultValue="false"/>
         <attribute name="smpProcessorAffinityMask" type="uint" defaultValue="4294967295"/>
+        <attribute name="smpProcessorAffinityMask2" type="uint" defaultValue="4294967295"/>
       </element>
     </element>
   </sectionSchema>
   
+  <sectionSchema name="system.applicationHost/configHistory">
+    <attribute name="enabled" type="bool" defaultValue="true" />
+    <attribute name="path" type="string" defaultValue="%SYSTEMDRIVE%\inetpub\history" />
+    <attribute name="maxHistories" type="uint" defaultValue="10" validationType="integerRange" validationParameter="1,4294967295"/>
+    <attribute name="period" type="timeSpan" defaultValue="00:02:00" validationType="timeSpanRange" validationParameter="10,2147483647,1"/>
+  </sectionSchema>
+
   <sectionSchema name="system.applicationHost/customMetadata">
     <collection addElement="key">
       <attribute name="path" type="string" isUniqueKey="true" />
@@ -359,6 +387,13 @@
     </element>
   </sectionSchema> 
 
+  <sectionSchema name="system.applicationHost/serviceAutoStartProviders">
+    <collection addElement="add" clearElement="clear" removeElement="remove">
+      <attribute name="name" type="string" caseSensitive="true" isUniqueKey="true" validationType="nonEmptyString" />
+      <attribute name="type" type="string" caseSensitive="true" />
+    </collection>
+  </sectionSchema>
+
   <sectionSchema name="system.applicationHost/sites">
     <collection addElement="site" defaultElement="siteDefaults" >
       <attribute name="name" type="string" required="true" isUniqueKey="true" validationType="siteName" />
@@ -430,6 +465,8 @@
         <attribute name="path" type="string" required="true" isUniqueKey="true" validationType="applicationPath" />
         <attribute name="applicationPool" type="string" validationType="applicationPoolName"/>
         <attribute name="enabledProtocols" type="string" defaultValue="http"/>
+        <attribute name="serviceAutoStartEnabled" type="bool" defaultValue="false" />
+        <attribute name="serviceAutoStartProvider" type="string" />
         <collection addElement="virtualDirectory" defaultElement="virtualDirectoryDefaults" >
           <attribute name="path" type="string" isUniqueKey="true" validationType="virtualDirectoryPath" />
           <attribute name="physicalPath" type="string" expanded="true" />
@@ -461,6 +498,8 @@
         <attribute name="path" type="string" validationType="applicationPath"/>
         <attribute name="applicationPool" type="string" validationType="applicationPoolName"/>
         <attribute name="enabledProtocols" type="string" defaultValue="http"/>
+        <attribute name="serviceAutoStartEnabled" type="bool" defaultValue="false" />
+        <attribute name="serviceAutoStartProvider" type="string" />
       </element>
       <element name="virtualDirectoryDefaults" isCollectionDefault="true">
         <attribute name="path" type="string" validationType="virtualDirectoryPath"/>
@@ -572,13 +611,6 @@
     <attribute name="minBytesPerSecond" type="uint" defaultValue="240"/>
   </sectionSchema>
 
-  <sectionSchema name="system.applicationHost/configHistory">
-    <attribute name="enabled" type="bool" defaultValue="true" />
-    <attribute name="path" type="string" defaultValue="%SYSTEMDRIVE%\inetpub\history" />
-    <attribute name="maxHistories" type="uint" defaultValue="10" validationType="integerRange" validationParameter="1,4294967295"/>
-    <attribute name="period" type="timeSpan" defaultValue="00:02:00" validationType="timeSpanRange" validationParameter="10,2147483647,1"/>
-  </sectionSchema>
-  
   <sectionSchema name="system.webServer/asp">
     <attribute name="appAllowClientDebug" type="bool" defaultValue="false" />
     <attribute name="appAllowDebugging" type="bool" defaultValue="false" />
@@ -694,7 +726,40 @@
       <flag name="LongDate" value="32" />
     </attribute>
   </sectionSchema>
-  
+
+  <sectionSchema name="system.webServer/fastCgi">
+    <collection addElement="application">
+      <attribute name="fullPath" type="string" expanded="true" required="true" isCombinedKey="true" validationType="nonEmptyString" />
+      <attribute name="arguments" type="string" expanded="true" defaultValue="" isCombinedKey="true" />
+      <attribute name="monitorChangesTo" type="string" defaultValue="" />
+      <attribute name="stderrMode" type="enum" defaultValue="ReturnStdErrIn500">
+	  <enum name="ReturnStdErrIn500" value="0" />
+	  <enum name="ReturnGeneric500" value="1" />
+	  <enum name="IgnoreAndReturn200" value="2" />
+	  <enum name="TerminateProcess" value="3" />
+      </attribute>
+      <attribute name="maxInstances" type="uint" defaultValue="0" validationType="integerRange" validationParameter="0,10000" />
+      <attribute name="idleTimeout" type="uint" defaultValue="300" validationType="integerRange" validationParameter="10,2592000" />
+      <attribute name="activityTimeout" type="uint" defaultValue="70" validationType="integerRange" validationParameter="10,2592000" />
+      <attribute name="requestTimeout" type="uint" defaultValue="90" validationType="integerRange" validationParameter="10,2592000" />
+      <attribute name="instanceMaxRequests" type="uint" defaultValue="200" validationType="integerRange" validationParameter="1,10000000" />
+      <attribute name="signalBeforeTerminateSeconds" type="uint" defaultValue="0" validationType="integerRange" validationParameter="0,60" />
+      <attribute name="protocol" type="enum" defaultValue="NamedPipe">
+        <enum name="NamedPipe" value="0" />
+        <enum name="Tcp" value="1" />
+      </attribute>
+      <attribute name="queueLength" type="uint" defaultValue="1000" validationType="integerRange" validationParameter="1,100000000" />
+      <attribute name="flushNamedPipe" type="bool" defaultValue="false" />
+      <attribute name="rapidFailsPerMinute" type="uint" defaultValue="10" validationType="integerRange" validationParameter="0,1000" />
+      <element name="environmentVariables">
+        <collection addElement="environmentVariable">
+          <attribute name="name" type="string" isUniqueKey="true" />
+          <attribute name="value" type="string" />
+        </collection>
+      </element>
+    </collection>
+  </sectionSchema>
+
   <sectionSchema name="system.webServer/globalModules">
     <collection addElement="add" clearElement="clear" removeElement="remove">
       <attribute name="name" type="string" caseSensitive="true" required="true" isUniqueKey="true" />
@@ -749,7 +814,7 @@
     <attribute name="directory" type="string" expanded="true" defaultValue="%SystemDrive%\inetpub\temp\IIS Temporary Compressed Files" />
     <attribute name="doDiskSpaceLimiting" type="bool" defaultValue="true" />
     <attribute name="maxDiskSpaceUsage" type="uint" defaultValue="100" />
-    <attribute name="minFileSizeForComp" type="uint" defaultValue="256" />
+    <attribute name="minFileSizeForComp" type="uint" defaultValue="2700" />
     <attribute name="noCompressionForHttp10" type="bool" defaultValue="true" />
     <attribute name="noCompressionForProxies" type="bool" defaultValue="true" />
     <attribute name="noCompressionForRange" type="bool" defaultValue="true" />
@@ -757,6 +822,7 @@
     <attribute name="staticCompressionEnableCpuUsage" type="uint" defaultValue="50" validationType="integerRange" validationParameter="0,100" />
     <attribute name="dynamicCompressionDisableCpuUsage" type="uint" defaultValue="90" validationType="integerRange" validationParameter="0,100" />
     <attribute name="dynamicCompressionEnableCpuUsage" type="uint" defaultValue="50" validationType="integerRange" validationParameter="0,100" />
+    <attribute name="dynamicCompressionBufferLimit" type="uint" defaultValue="65536" />
     <collection addElement="scheme" clearElement="clear" removeElement="remove">
       <attribute name="name" type="string" required="true" isUniqueKey="true" validationType="nonEmptyString" />
       <attribute name="doStaticCompression" type="bool" defaultValue="true" />
@@ -869,7 +935,50 @@
       <attribute name="preCondition" type="string" caseSensitive="true" />
     </collection>
   </sectionSchema>
-  
+
+  <sectionSchema name="system.webServer/management/authentication">
+    <attribute name="defaultProvider" type="string" />
+    <element name="providers">
+      <collection addElement="add" allowUnrecognizedAttributes="true">
+        <attribute name="name" type="string" required="true" isUniqueKey="true" />
+        <attribute name="type" type="string" required="true" />
+      </collection>
+    </element>
+    <element name="credentials">
+      <collection addElement="add">
+        <attribute name="name" type="string" required="true" isUniqueKey ="true" />
+        <attribute name="password" type="string" caseSensitive="true" required="true" />
+        <attribute name="enabled" type="bool" defaultValue="true" />
+      </collection>
+    </element>
+  </sectionSchema>
+
+  <sectionSchema name="system.webServer/management/authorization">
+    <attribute name="defaultProvider" type="string" />
+    <element name="providers">
+      <collection addElement="add" allowUnrecognizedAttributes="true">
+        <attribute name="name" type="string" required="true" isUniqueKey="true" />
+        <attribute name="type" type="string" required="true" />
+      </collection>
+    </element>
+    <element name="authorizationRules">
+      <collection addElement="scope">
+        <attribute name="path" type="string" required="true" isUniqueKey="true" />
+        <collection addElement="add">
+          <attribute name="name" type="string" required="true" isUniqueKey="true" />
+          <attribute name="isRole" type="bool" defaultValue="false" />
+        </collection>
+      </collection>
+    </element>
+  </sectionSchema>
+
+  <sectionSchema name="system.webServer/management/trustedProviders">
+    <attribute name="allowUntrustedProviders" type="bool" defaultValue="false" />
+    <collection addElement="add">
+      <attribute name="type" type="string" required="true" />
+    </collection>
+  </sectionSchema>
+
   <sectionSchema name="system.webServer/modules">
     <attribute name="runAllManagedModulesForAllRequests" type="bool" defaultValue="false" />
     <attribute name="runManagedModulesForWebDavRequests" type="bool" defaultValue="false" />
@@ -1142,6 +1251,10 @@
     <attribute name="enableNagling" type="bool" defaultValue="false" />
     <attribute name="frequentHitThreshold" type="uint" defaultValue="2" validationType="integerRange" validationParameter="1,2147483647" />
     <attribute name="frequentHitTimePeriod" type="timeSpan" defaultValue="00:00:10" />
+    <attribute name="authenticatedUserOverride" type="enum" defaultValue="UseAuthenticatedUser">
+      <enum name="UseAuthenticatedUser" value="1" />
+      <enum name="UseWorkerProcessUser" value="2" />
+    </attribute>
   </sectionSchema>
 
   <sectionSchema name="system.webServer/serverSideInclude">
@@ -1217,7 +1330,7 @@
 
   <sectionSchema name="system.webServer/urlCompression">
     <attribute name="doStaticCompression" type="bool" defaultValue="true" />
-    <attribute name="doDynamicCompression" type="bool" defaultValue="false" />
+    <attribute name="doDynamicCompression" type="bool" defaultValue="true" />
     <attribute name="dynamicCompressionBeforeCache" type="bool" defaultValue="false" />
   </sectionSchema>
 
@@ -1272,81 +1385,13 @@
     </collection>
   </sectionSchema>
   
-  <sectionSchema name="system.webServer/management/authentication">
-    <attribute name="defaultProvider" type="string" />
-    <element name="providers">
-      <collection addElement="add" allowUnrecognizedAttributes="true">
-        <attribute name="name" type="string" required="true" isUniqueKey="true" />
-        <attribute name="type" type="string" required="true" />
-      </collection>
-    </element>
-    <element name="credentials">
-      <collection addElement="add">
-        <attribute name="name" type="string" required="true" isUniqueKey ="true" />
-        <attribute name="password" type="string" caseSensitive="true" required="true" />
-        <attribute name="enabled" type="bool" defaultValue="true" />
-      </collection>
-    </element>
-  </sectionSchema>
-  
-  <sectionSchema name="system.webServer/management/authorization">
-    <attribute name="defaultProvider" type="string" />
-    <element name="providers">
-      <collection addElement="add" allowUnrecognizedAttributes="true">
-        <attribute name="name" type="string" required="true" isUniqueKey="true" />
-        <attribute name="type" type="string" required="true" />
-      </collection>
-    </element>
-    <element name="authorizationRules">
-      <collection addElement="scope">
-        <attribute name="path" type="string" required="true" isUniqueKey="true" />
-        <collection addElement="add">
-          <attribute name="name" type="string" required="true" isUniqueKey="true" />
-          <attribute name="isRole" type="bool" defaultValue="false" />
-        </collection>
-      </collection>
-    </element>
-  </sectionSchema>
-  
-  <sectionSchema name="system.webServer/management/trustedProviders">
-    <attribute name="allowUntrustedProviders" type="bool" defaultValue="false" />
-    <collection addElement="add">
-      <attribute name="type" type="string" required="true" />
-    </collection>
-  </sectionSchema>
-
-  <sectionSchema name="system.webServer/fastCgi">
-    <collection addElement="application">
-      <attribute name="fullPath" type="string" expanded="true" required="true" isCombinedKey="true" validationType="nonEmptyString" />
-      <attribute name="arguments" type="string" defaultValue="" isCombinedKey="true" />
-      <attribute name="maxInstances" type="uint" defaultValue="4" validationType="integerRange" validationParameter="1,10000" />
-      <attribute name="idleTimeout" type="uint" defaultValue="300" validationType="integerRange" validationParameter="10,604800" />
-      <attribute name="activityTimeout" type="uint" defaultValue="30" validationType="integerRange" validationParameter="10,3600" />
-      <attribute name="requestTimeout" type="uint" defaultValue="90" validationType="integerRange" validationParameter="10,604800" />
-      <attribute name="instanceMaxRequests" type="uint" defaultValue="200" validationType="integerRange" validationParameter="1,10000000" />
-      <attribute name="protocol" type="enum" defaultValue="NamedPipe">
-        <enum name="NamedPipe" value="0" />
-        <enum name="Tcp" value="1" />
-      </attribute>
-      <attribute name="queueLength" type="uint" defaultValue="1000" validationType="integerRange" validationParameter="1,100000000" />
-      <attribute name="flushNamedPipe" type="bool" defaultValue="false" />
-      <attribute name="rapidFailsPerMinute" type="uint" defaultValue="10" validationType="integerRange" validationParameter="0,1000" />
-      <element name="environmentVariables">
-        <collection addElement="environmentVariable">
-          <attribute name="name" type="string" isUniqueKey="true" />
-          <attribute name="value" type="string" />
-        </collection>
-      </element>
-    </collection>
-  </sectionSchema>
-
   <sectionSchema name="configurationRedirection">
     <attribute name="enabled" type="bool" defaultValue="false" />
     <attribute name="path" type="string" expanded="true" defaultValue="" />
     <attribute name="userName" type="string" defaultValue="" />
     <attribute name="password" type="string" caseSensitive="true" encrypted="true" defaultValue="[enc:IISRsaProvider::enc]" />
+    <attribute name="enableUncPolling" type="bool" defaultValue="false" />
+    <attribute name="pollingPeriod" type="timeSpan" defaultValue="00:03:00" />
   </sectionSchema>
 
 </configSchema>
-
-

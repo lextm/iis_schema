@@ -46,8 +46,8 @@
     <sectionSchema name="system.data">
         <element name="DbProviderFactories">
             <collection addElement="add" removeElement="remove" clearElement="clear">
-                <attribute name="name" required="true" isUniqueKey="true" type="string" />
-                <attribute name="invariant" type="string" />
+                <attribute name="invariant" type="string" required="true" isUniqueKey="true" />
+                <attribute name="name" type="string" />
                 <attribute name="description" type="string" />
                 <attribute name="type" required="true" type="string" />
             </collection>
@@ -62,7 +62,7 @@
             <attribute name="filemappingsize" type="int" defaultValue="524288" />
         </element>
         <element name="sharedListeners">
-            <collection addElement="add" allowUnrecognizedAttributes="true">
+            <collection addElement="add" allowDuplicates="true" allowUnrecognizedAttributes="true">
                 <attribute name="name" type="string" required="true" isUniqueKey="true" />
                 <attribute name="traceOutputOptions" type="flags" defaultValue="None">
                     <flag name="None" value="0" />
@@ -82,8 +82,8 @@
             </collection>
         </element>
         <element name="sources">
-            <collection addElement="source" removeElement="remove" clearElement="clear" allowUnrecognizedAttributes="true">
-                <attribute name="name" type="string" required="true" isUniqueKey="true" defaultValue="" />
+            <collection addElement="source" allowUnrecognizedAttributes="true">
+                <attribute name="name" type="string" required="true" defaultValue="" />
                 <attribute name="switchName" type="string" />
                 <attribute name="switchValue" type="string" />
                 <attribute name="switchType" type="string" />

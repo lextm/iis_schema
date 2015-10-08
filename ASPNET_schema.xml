@@ -96,7 +96,7 @@
     </sectionSchema>
     <sectionSchema name="system.web/compilation">
         <element name="assemblies">
-            <collection addElement="add" removeElement="remove" clearElement="clear">
+            <collection addElement="add" removeElement="remove" clearElement="clear" allowDuplicates="true">
                 <attribute name="assembly" required="true" isUniqueKey="true" type="string" validationType="nonEmptyString" />
             </collection>
         </element>

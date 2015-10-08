@@ -39,6 +39,7 @@
         <enum name="Stopped" value="3" />
         <enum name="Unknown" value="4" />
       </attribute>
+      <attribute name="applicationPoolSid" type="string" extension="Microsoft.ApplicationHost.RscaExtension" />
       <method name="Start" extension="Microsoft.ApplicationHost.RscaExtension" />
       <method name="Stop" extension="Microsoft.ApplicationHost.RscaExtension" />
       <method name="Recycle" extension="Microsoft.ApplicationHost.RscaExtension" />
